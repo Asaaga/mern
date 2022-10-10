@@ -1,24 +1,36 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const path = require('path')
+import express from 'express';
+import data from './data.js';
 const app = express();
-
-dotenv.config();
 app.use(express.json());
 
-const port  = process.env.PORT || 3000;
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
+app.get('/api/products', (req, res) => {
+    res.send(data.products)
+})
 
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then((console.log('db connected')))
+app.get('/api/products/slug/:slug', (req, res) => {
+    const productId = req.params.slug;
+    const product = data.products.find(x => (x.slug === productId));
+    if (product) {
+        res.send(product);
+    } else {
+        res.status(404).send({message: 'Product not found!'});
+    }
+})
+
+app.get('/api/products/:id', (req, res) => {
+    const productId = req.params.id;
+    const product = data.products.find(x => (x._id === productId));
+    if (product) {
+        res.send(product);
+    } else {
+        res.status(404).send({message: 'Product not found!'});
+    }
+})
 
 
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+const port = process.env.PORT || 5000;
 
 
-app.listen(port, () => (console.log('app is listening on port', port)))
+app.listen(port, () => (console.log('app is listening on port', port)));
+
+
